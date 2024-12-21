@@ -103,3 +103,41 @@ validator dedicate(plc: PolicyId){
         }
     }
 }
+ 
+test lock_assets(){
+    let owner = #"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    let beneficiary = #"fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+    let policy_id = #"ff0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+    let amt = 1000
+    let token_name = "tran long"
+    let nft = Asset{
+        policy_id,
+        token_name,
+        amt,
+    }
+    let lock_until = 100
+    let locked_ada = 1000
+    let message = "aloalo"
+    let status: InheritanceStatus = Unlocked
+    let datum = Datum {
+        owner,
+        beneficiary,
+        lock_until,
+        status,
+        nft,  
+        locked_ada, 
+        message, 
+    }
+    let placeholder_utxo = OutputReference {
+        transaction_id: #"",
+        output_index: 0
+    }
+    dedicate(policy_id).spend(
+        Some(datum),
+        Lock,
+        placeholder_utxo,
+        Transaction { ..transaction.placeholder, extra_signatories: [owner] },
+    )
+    
+
+}
