@@ -1,5 +1,5 @@
 use cardano/assets.{PolicyId, AssetName}
-use cardano/transaction.{Transaction, InlineDatum, OutputReference, Output, NoDatum }
+use cardano/transaction.{Transaction, InlineDatum, OutputReference, Output}
 use aiken/crypto.{ VerificationKeyHash,}
 use cardano/address.{Address, VerificationKey}
 use aiken/interval
@@ -81,8 +81,6 @@ validator dedicate{
                         }
                         }
                     }
-                
-    
             Refund -> {
                 and{
                 list.has(tx.extra_signatories, datum.owner),

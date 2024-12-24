@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "@lucid-cardano/lucid": "npm:@lucid-cardano/lucid"
+  }
+} 
