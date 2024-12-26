@@ -44,11 +44,7 @@ const Asset = Data.Object({
     Data.Literal("Claimed"),
     Data.Literal("Refunded"),
  ]);
- const Action = Data.Enum([
-    Data.Literal("Lock"),
-    Data.Literal("Refund"),
-    Data.Literal("Claim")
- ]);
+
  console.log("46");
  const Datum = Data.Object({
     owner: Data.Bytes(),           
@@ -60,24 +56,32 @@ const Asset = Data.Object({
     locked_ada: Data.Integer(),     // Int
     plc: Data.Bytes(),            // PolicyId
  });
+ const Action = Data.Enum([
+    Data.Literal("Lock"),
+    Data.Literal("Refund"),
+    Data.Literal("Claim")
+]) ;
+ type Action = Data.Static<typeof Action>;
  type Datum = Data.Static<typeof Datum>;
  async function unlock(utxos: UTxO[], currentTime: number, {from, using}: {from: SpendingValidator, using : Redeemer}): Promise<TxHash>{
     const laterTime = new Date(currentTime + 2 * 60 * 60 * 1000).getTime();
-    
-    // Lấy địa chỉ của beneficiary
-    const beneficiaryAddress = await lucid.wallet.address();
-    
-    const tx = await lucid.newTx()
+
+    console.log("69");
+    const tx = await lucid
+    .newTx()
     .collectFrom(utxos, using)
     .addSigner(await lucid.wallet.address()) // this should be beneficiary address
     .validFrom(currentTime)
     .validTo(laterTime)
     .attachSpendingValidator(from)
     .complete();
-
+    console.log("77");
 
     const signedTx = await tx.sign().complete();
-    return signedTx.submit();
+    console.log("Transaction signed oke");
+    const txHash = signedTx.submit();
+    console.log("Transaction submited oke");
+    return txHash;
  }
  async function main(){
     const beneficiaryPublicKeyHash = lucid.utils.getAddressDetails(await lucid.wallet.address()).paymentCredential?.hash;
@@ -103,10 +107,8 @@ const Asset = Data.Object({
                 isTimeExpired,
                 isPolicyMatch
             });
-             return isBeneficiaryMatch && 
-                   isLocked && 
-                   isTimeExpired && 
-                   isPolicyMatch;
+             return isBeneficiaryMatch &&    
+                   isTimeExpired ;
         } catch (e) {
             console.log(e);
             return false;
@@ -117,7 +119,7 @@ const Asset = Data.Object({
         Deno.exit(1);
     }
     console.log("92");
-    const redeemer = "Claim" as const;
+    const redeemer = Action.Claim;
     console.log("95");
     const txUnlock = await unlock(utxos, currentTime, { from: validator, using: redeemer });
     console.log("96");
