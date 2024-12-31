@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "lucid-cardano": "^0.10.11"
+  },
+  "scripts": {
+    "dev": "nodemon index.js"
   }
 }
