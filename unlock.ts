@@ -17,7 +17,7 @@ import {
    const lucid = await Lucid.new(
        new Blockfrost(
            "https://cardano-preview.blockfrost.io/api/v0",
-           "previewP0pgwulal3HfojJLi0T5p1bhPkFjWuvi"
+           "previewHZApug3UnrJRVchVYzOu57hKu8PucW5o"
        ),
        "Preview"
    );
@@ -61,15 +61,15 @@ const Asset = Data.Object({
     Data.Literal("Refund"),
     Data.Literal("Claim")
 ]) ;
- type Action = Data.Static<typeof Action>;
+ 
  type Datum = Data.Static<typeof Datum>;
- async function unlock(utxos: UTxO[], currentTime: number, {from, using}: {from: SpendingValidator, using : Redeemer}): Promise<TxHash>{
+ async function unlock(utxos: UTxO[], currentTime: number, {from, using} : {from: SpendingValidator, using: Redeemer}): Promise<TxHash>{
     const laterTime = new Date(currentTime + 2 * 60 * 60 * 1000).getTime();
 
     console.log("69");
     const tx = await lucid
     .newTx()
-    .collectFrom(utxos, using)
+    .collectFrom(utxos, using) //collect utxo to redeemer
     .addSigner(await lucid.wallet.address()) // this should be beneficiary address
     .validFrom(currentTime)
     .validTo(laterTime)
@@ -79,9 +79,8 @@ const Asset = Data.Object({
 
     const signedTx = await tx.sign().complete();
     console.log("Transaction signed oke");
-    const txHash = signedTx.submit();
-    console.log("Transaction submited oke");
-    return txHash;
+    
+    return signedTx.submit();
  }
  async function main(){
     const beneficiaryPublicKeyHash = lucid.utils.getAddressDetails(await lucid.wallet.address()).paymentCredential?.hash;
@@ -108,7 +107,7 @@ const Asset = Data.Object({
                 isPolicyMatch
             });
              return isBeneficiaryMatch &&    
-                   isTimeExpired ;
+                   isTimeExpired && isTimeExpired && isPolicyMatch;
         } catch (e) {
             console.log(e);
             return false;
@@ -119,12 +118,13 @@ const Asset = Data.Object({
         Deno.exit(1);
     }
     console.log("92");
+    
     const redeemer = Action.Claim;
+    console.log("redeemer: ", redeemer);
     console.log("95");
     const txUnlock = await unlock(utxos, currentTime, { from: validator, using: redeemer });
     console.log("96");
     await lucid.awaitTx(txUnlock);
-
     console.log(`1 tADA recovered from the contract
         Tx ID: ${txUnlock}
         Redeemer: ${redeemer}
@@ -132,4 +132,6 @@ const Asset = Data.Object({
 
  }
  main();
- //deno run --allow-net --allow-read --allow-env unlock.ts
+ //deno run --allow-net --allow-read --allow-env unlock.ts c44c0bfb1aad23c8a0f475ad212d7ea7b9c5b4e3c823de642c484203b6c1a50d
+ 
+ 

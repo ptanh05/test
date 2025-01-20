@@ -14,7 +14,7 @@ import * as cbor from "https://deno.land/x/cbor@v1.4.1/index.js";
 const lucid = await Lucid.new(
     new Blockfrost(
         "https://cardano-preview.blockfrost.io/api/v0",
-        "previewP0pgwulal3HfojJLi0T5p1bhPkFjWuvi"
+        "previewHZApug3UnrJRVchVYzOu57hKu8PucW5o"
     ),
     "Preview"
 );
@@ -98,7 +98,7 @@ async function main(){
                 Datum
             );
     console.log("96");
-    const txLock = await lock(1_000_000_000n, {into: validator, datum: datum});
+    const txLock = await lock(1_000_000n, {into: validator, datum: datum});
     console.log("98");
     await lucid.awaitTx(txLock);
 
